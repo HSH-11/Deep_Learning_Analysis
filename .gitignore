@@ -1,0 +1,14 @@
+# Datasets (대용량 데이터 제외)
+New Plant Diseases Dataset(Augmented)/
+
+# Models (대용량 모델 가중치 제외)
+*.pth
+
+# Python 컴파일 파일 및 캐시
+__pycache__/
+*.pyc
+
+# 주피터 노트북 체크포인트 및 IDE 설정 파일
+.ipynb_checkpoints/
+.vscode/
+.idea/
