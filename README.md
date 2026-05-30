@@ -1,10 +1,10 @@
-# 🌿 Plant Disease Classification using CNN (농작물 잎 병해충 진단)
+#  Plant Disease Classification using CNN (농작물 잎 병해충 진단)
 
 본 프로젝트는 CNN(합성곱 신경망) 모델을 활용하여 농작물 잎의 이미지를 분석하고, 38가지의 다양한 병해충 상태(정상 상태 포함)를 분류 및 진단하는 딥러닝 프로젝트입니다.
 
 ---
 
-## 📊 프로젝트 개요
+##  프로젝트 개요
 
 - **목표**: 38개 클래스로 분류된 농작물 잎 이미지를 입력받아 병해충 진단 및 정상 상태 판별
 - **프레임워크**: PyTorch, Albumentations (데이터 증강)
@@ -19,7 +19,7 @@
 
 ---
 
-## 📂 데이터셋 (Dataset)
+##  데이터셋 (Dataset)
 
 - **데이터셋명**: New Plant Diseases Dataset (Augmented)
 - **데이터 크기**: 
@@ -35,7 +35,7 @@
 
 ---
 
-## 🏗️ 모델 아키텍처 (Model Architecture)
+##  모델 아키텍처 (Model Architecture)
 
 `PlantDiseaseCNN` 모델은 다음과 같이 4개의 Convolutional Block과 1개의 Fully Connected 분류기로 구성되어 있습니다.
 
@@ -56,7 +56,7 @@ Input: (3, 224, 224)
 
 ---
 
-## 📈 학습 결과 (Training Results)
+##  학습 결과 (Training Results)
 
 - **에포크(Epochs)**: 10
 - **옵티마이저 (Optimizer)**: Adam (Learning Rate: 0.001)
@@ -72,7 +72,7 @@ Input: (3, 224, 224)
 
 ---
 
-## 🚀 사용법 (How to Run)
+##  사용법 (How to Run)
 
 ### 1. 가상환경 구축 및 패키지 설치
 ```bash
