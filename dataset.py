@@ -1,5 +1,4 @@
 import os
-import glob
 import cv2
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -21,20 +20,22 @@ class PlantDiseaseDataset(Dataset):
         self.classes = sorted(os.listdir(root_dir))
         self.class_to_idx = {cls_name: i for i, cls_name in enumerate(self.classes)}
         
-        # 지원할 이미지 확장자 리스트
-        valid_extensions = ('*.jpg', '*.jpeg', '*.png', '*.JPG', '*.JPEG', '*.PNG')
+        # Windows 대소문자 미구분 파일시스템에서 glob 중복 방지: suffix.lower()로 1회 순회
+        valid_suffixes = {'.jpg', '.jpeg', '.png'}
         
-        # 모든 클래스 폴더 내의 이미지 파일 경로 및 해당 라벨 매칭 수집
         for cls_name in self.classes:
             cls_dir = os.path.join(root_dir, cls_name)
             if not os.path.isdir(cls_dir):
                 continue
             
-            for ext in valid_extensions:
-                pattern = os.path.join(cls_dir, ext)
-                for img_path in glob.glob(pattern):
-                    self.image_paths.append(img_path)
-                    self.labels.append(self.class_to_idx[cls_name])
+            for fname in sorted(os.listdir(cls_dir)):
+                if os.path.splitext(fname)[1].lower() not in valid_suffixes:
+                    continue
+                img_path = os.path.join(cls_dir, fname)
+                if not os.path.isfile(img_path):
+                    continue
+                self.image_paths.append(img_path)
+                self.labels.append(self.class_to_idx[cls_name])
                     
         print(f"Loaded dataset from {root_dir}: {len(self.image_paths)} images found across {len(self.classes)} classes.")
 
