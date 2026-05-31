@@ -28,6 +28,8 @@
   - **Total**: 87,867장
 - **이미지 크기**: 224 × 224 (RGB)
 - **데이터 증강 (Augmentation)**:
+    이미 증강된 데이터라 불필요..?
+    Resize(224, 224)  →  Normalize(ImageNet)  →  ToTensor
   - `Resize` (224x224)
   - `Rotate` (±30도)
   - `HorizontalFlip` (좌우 반전)
