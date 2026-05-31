@@ -1,0 +1,15 @@
+crop,num_classes,healthy_classes,disease_classes,healthy_images,disease_images,diagnosis_scope,diagnosis_capability,class_list
+Apple,4,1,3,2510,7204,full,건강 + 병해 진단 가능,"Apple___Apple_scab, Apple___Black_rot, Apple___Cedar_apple_rust, Apple___healthy"
+Blueberry,1,1,0,2270,N/A,healthy_only,정상(Healthy) 참고만 — 병해 진단 불가,Blueberry___healthy
+Cherry_(including_sour),2,1,1,2282,2104,full,건강 + 병해 진단 가능,"Cherry_(including_sour)___Powdery_mildew, Cherry_(including_sour)___healthy"
+Corn_(maize),4,1,3,2324,6821,full,건강 + 병해 진단 가능,"Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot, Corn_(maize)___Common_rust_, Corn_(maize)___Northern_Leaf_Blight, Corn_(maize)___healthy"
+Grape,4,1,3,2115,6912,full,건강 + 병해 진단 가능,"Grape___Black_rot, Grape___Esca_(Black_Measles), Grape___Leaf_blight_(Isariopsis_Leaf_Spot), Grape___healthy"
+Orange,1,0,1,N/A,2513,disease_only,특정 병해 스크리닝만 — 정상 판별 불가,Orange___Haunglongbing_(Citrus_greening)
+Peach,2,1,1,2160,2297,full,건강 + 병해 진단 가능,"Peach___Bacterial_spot, Peach___healthy"
+"Pepper,_bell",2,1,1,2485,2391,full,건강 + 병해 진단 가능,"Pepper,_bell___Bacterial_spot, Pepper,_bell___healthy"
+Potato,3,1,2,2280,4848,full,건강 + 병해 진단 가능,"Potato___Early_blight, Potato___Late_blight, Potato___healthy"
+Raspberry,1,1,0,2226,N/A,healthy_only,정상(Healthy) 참고만 — 병해 진단 불가,Raspberry___healthy
+Soybean,1,1,0,2527,N/A,healthy_only,정상(Healthy) 참고만 — 병해 진단 불가,Soybean___healthy
+Squash,1,0,1,N/A,2170,disease_only,특정 병해 스크리닝만 — 정상 판별 불가,Squash___Powdery_mildew
+Strawberry,2,1,1,2280,2218,full,건강 + 병해 진단 가능,"Strawberry___Leaf_scorch, Strawberry___healthy"
+Tomato,10,1,9,2407,20523,full,건강 + 병해 진단 가능,"Tomato___Bacterial_spot, Tomato___Early_blight, Tomato___Late_blight, Tomato___Leaf_Mold, Tomato___Septoria_leaf_spot, Tomato___Spider_mites Two-spotted_spider_mite, Tomato___Target_Spot, Tomato___Tomato_Yellow_Leaf_Curl_Virus, Tomato___Tomato_mosaic_virus, Tomato___healthy"

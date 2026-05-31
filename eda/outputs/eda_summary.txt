@@ -1,0 +1,20 @@
+=== New Plant Diseases Dataset (Augmented) — Phase 1 EDA Summary ===
+
+Dataset path: C:\Users\user\Deep_Learning_Analysis\New Plant Diseases Dataset(Augmented)\New Plant Diseases Dataset(Augmented)
+Total images: 87,867 (Train: 70,295, Valid: 17,572)
+Classes: 38 | Crops: 14
+Healthy images: 27,866 | Disease images: 60,001
+Healthy classes: 12 | Disease classes: 26
+
+Class imbalance (total per class):
+  min=2,052, max=2,527,
+  mean=2312.3, CV=0.0572
+
+Valid ratio per class: mean=0.2000, std=0.0001
+
+Diagnosis scope:
+  Full (healthy + disease): Apple, Cherry_(including_sour), Corn_(maize), Grape, Peach, Pepper,_bell, Potato, Strawberry, Tomato
+  Limited: Blueberry, Orange, Raspberry, Soybean, Squash
+
+Figures saved to: C:\Users\user\Deep_Learning_Analysis\eda\figures
+CSV saved to: C:\Users\user\Deep_Learning_Analysis\eda\outputs
