@@ -23,8 +23,9 @@
 
 - **데이터셋명**: New Plant Diseases Dataset (Augmented)
 - **데이터 크기**: 
-  - **Train**: 140,590장 (38 classes)
-  - **Validation**: 35,144장 (38 classes)
+  - **Train**: 70,295장 (38 classes)
+  - **Validation**: 17,572장 (38 classes)
+  - **Total**: 87,867장
 - **이미지 크기**: 224 × 224 (RGB)
 - **데이터 증강 (Augmentation)**:
   - `Resize` (224x224)
