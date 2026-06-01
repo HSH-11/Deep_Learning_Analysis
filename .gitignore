@@ -1,6 +1,6 @@
 # Datasets (대용량 데이터 제외)
 New Plant Diseases Dataset(Augmented)/
-
+plantdoc/
 # Models (대용량 모델 가중치 제외)
 *.pth
 

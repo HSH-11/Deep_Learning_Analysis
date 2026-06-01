@@ -96,7 +96,25 @@ New Plant Diseases Dataset(Augmented)/
 ```
 
 ### 3. 학습 모델 실행
-**스크립트로 실행 시**:
+
+**[1] NPD pretrain** (실험실 데이터, 처음부터 학습):
+```bash
+python train.py --mode pretrain
+```
+→ `best_model.pth` 저장
+
+**[2] PlantDoc fine-tune** (현장 데이터, NPD 가중치 로드):
+```bash
+python train.py --mode finetune --pretrained best_model.pth
+```
+→ `best_model_plantdoc.pth` 저장 · 평가는 PlantDoc `test/` 기준
+
+| 모드 | 데이터 | 기본 lr | 기본 epoch | 저장 파일 |
+|------|--------|---------|------------|-------------|
+| `pretrain` | NPD train/valid | 0.001 | 10 | `best_model.pth` |
+| `finetune` | PlantDoc train/test | 0.0001 | 15 | `best_model_plantdoc.pth` |
+
+**스크립트로 실행 (pretrain 기본)**:
 ```bash
 python train.py
 ```
