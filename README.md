@@ -1,104 +1,73 @@
-#  Plant Disease Classification using CNN (농작물 잎 병해충 진단)
+# 🌿 Plant Disease Classification: 경량화 아키텍처 비교 및 딥러닝 최적화 연구
 
-본 프로젝트는 CNN(합성곱 신경망) 모델을 활용하여 농작물 잎의 이미지를 분석하고, 38가지의 다양한 병해충 상태(정상 상태 포함)를 분류 및 진단하는 딥러닝 프로젝트입니다.
-
----
-
-##  프로젝트 개요
-
-- **목표**: 38개 클래스로 분류된 농작물 잎 이미지를 입력받아 병해충 진단 및 정상 상태 판별
-- **프레임워크**: PyTorch, Albumentations (데이터 증강)
-- **최종 검증 정확도 (Val Accuracy)**: **97.92%** (9 Epoch)
-- **주요 파일 구성**:
-  - `model.py`: 커스텀 `PlantDiseaseCNN` 모델 아키텍처 정의
-  - `dataset.py`: Albumentations 전처리/증강 및 PyTorch Dataset, DataLoader 구축
-  - `train.py`: 커맨드 라인 학습 실행 스크립트
-  - `run_training.ipynb`: 학습 실행, 이력 기록 및 결과 그래프 시각화 주피터 노트북
-  - `training_results.png`: 학습 Loss 및 Validation Accuracy 추이 그래프
-  - `.gitignore`: 데이터셋 및 모델 가중치 파일 등 대용량 파일 업로드 방지 설정
+본 프로젝트는 농작물 잎 이미지를 분석하여 38가지 병해충 상태를 진단하는 딥러닝 프로젝트입니다. 
+단순한 모델 적용을 넘어, **전통적인 CNN의 한계점(파라미터 폭발)을 분석하고 GAP(Global Average Pooling)를 직접 적용한 자체 최적화 모델부터 SOTA(State-of-the-Art) 모델까지 파라미터 효율성과 정확도를 비교 분석**하는 것을 핵심 연구 목표로 합니다.
 
 ---
 
-##  데이터셋 (Dataset)
+## 📊 프로젝트 개요 및 연구 스토리라인
 
-- **데이터셋명**: New Plant Diseases Dataset (Augmented)
-- **데이터 크기**: 
-  - **Train**: 140,590장 (38 classes)
-  - **Validation**: 35,144장 (38 classes)
-- **이미지 크기**: 224 × 224 (RGB)
-- **데이터 증강 (Augmentation)**:
-  - `Resize` (224x224)
-  - `Rotate` (±30도)
-  - `HorizontalFlip` (좌우 반전)
-  - `ColorJitter` (밝기, 대비, 채도, 색상 임의 변경)
-  - `Normalize` (ImageNet 표준 평균 및 표준편차 적용)
+### Step 1. 문제 발견 (전통적 CNN의 한계)
+*   **Baseline CNN**: 4개의 Conv Layer와 Dense Layer(`Flatten` 사용)로 구성된 자체 모델 설계.
+*   **한계 분석**: `Flatten` 층으로 인해 파라미터가 약 2,610만 개로 폭발적으로 증가. 50층짜리 깊은 모델인 ResNet50(약 2,350만 개)보다 무거워 실무 배포(모바일/엣지 디바이스)에 부적합함을 발견.
 
----
+### Step 2. 자체 아키텍처 개선 (파라미터 98% 감소 달성)
+*   **Baseline CNN (GAP)**: 파라미터 폭발의 원인인 `Flatten` 대신 최신 논문 기법인 **GAP(Global Average Pooling)**를 분류기 직전에 직접 설계하여 도입.
+*   **최적화 성과**: 기존 대비 파라미터를 2,610만 개 ➡️ **54만 개(약 0.5M)로 98% 대폭락** 시키며, 초경량 자체 모델 구축에 성공.
 
-##  모델 아키텍처 (Model Architecture)
-
-`PlantDiseaseCNN` 모델은 다음과 같이 4개의 Convolutional Block과 1개의 Fully Connected 분류기로 구성되어 있습니다.
-
-```
-Input: (3, 224, 224)
-  ↓
-[Conv Block 1] Conv2d(3→32) + BatchNorm + ReLU + MaxPool2d  → (32, 112, 112)
-  ↓
-[Conv Block 2] Conv2d(32→64) + BatchNorm + ReLU + MaxPool2d → (64, 56, 56)
-  ↓
-[Conv Block 3] Conv2d(64→128) + BatchNorm + ReLU + MaxPool2d → (128, 28, 28)
-  ↓
-[Conv Block 4] Conv2d(128→256) + BatchNorm + ReLU + MaxPool2d → (256, 14, 14)
-  ↓
-[Classifier]   Flatten + Linear(50,176→512) + ReLU + Dropout(0.5) + Linear(512→38)
-```
-- **총 파라미터 수**: 26,099,494개 (약 2,600만)
+### Step 3. 최적의 실무 솔루션 검증 (SOTA 모델 적용)
+*   **EfficientNet-B0 도입**: 자체 경량화 모델 연구를 바탕으로, 초기 설계부터 GAP와 Compound Scaling이 적용된 최적화 모델인 EfficientNet 도입.
+*   **최종 성과**: 파라미터는 400만 개 수준으로 유지하면서 **99.73%**라는 압도적인 최종 정확도를 달성하며 '효율성'과 '성능' 두 마리 토끼를 모두 잡음. (현재 일부 모델은 학습 진행 중)
 
 ---
 
-##  학습 결과 (Training Results)
+## 🏗️ 모델 아키텍처 및 파라미터 비교
+
+| 모델명 | 분류기 구조 특징 | 파라미터 수 (개) | 평가 |
+| :--- | :--- | :--- | :--- |
+| **Baseline CNN (기존)** | `Flatten` -> Dense | 26,099,494 | 모델의 깊이에 비해 연산량이 가장 무거움 |
+| ResNet50 (진행 예정) | GAP 적용 + Residual | 23,585,894 | 깊은 층으로 인해 무거운 편 |
+| MobileNetV3 (진행 예정) | GAP + Depthwise Conv | 4,250,710 | 가볍고 효율적임 |
+| **EfficientNet-B0 (완료)** | **GAP + Compound Scaling** | **4,056,226** | 가벼운 파라미터 + **압도적 성능(99.73%)** |
+| **Baseline CNN (GAP 적용)** | **`GAP` -> Dense** | **540,454** | 파라미터 구조 개선으로 인한 **극강의 초경량화** |
+
+---
+
+## 📈 주요 학습 결과 (EfficientNet-B0 기준)
 
 - **에포크(Epochs)**: 10
 - **옵티마이저 (Optimizer)**: Adam (Learning Rate: 0.001)
-- **손실 함수 (Loss Function)**: CrossEntropyLoss
 - **성능 기록**:
-  - **Best Epoch**: 9
-  - **Best Val Accuracy**: **97.92%**
-  - **Best Val Loss**: 0.0639
-
-### Loss 및 Accuracy 시각화
-
-![Training Results](training_results.png)
+  - **Best Val Accuracy**: **99.73%** (Epoch 9)
+  - **Best Val Loss**: 0.0094
+  
+*(※ 다른 모델들의 학습 결과는 순차적으로 업데이트 될 예정입니다.)*
 
 ---
 
-##  사용법 (How to Run)
+## 📂 데이터셋 (Dataset)
 
-### 1. 가상환경 구축 및 패키지 설치
-```bash
-pip install torch torchvision albumentations opencv-python matplotlib tqdm jupyter
+- **데이터셋명**: New Plant Diseases Dataset (Augmented)
+- **데이터 크기**: Train 140,590장 / Validation 35,144장 (총 38 classes)
+- **데이터 증강 (Augmentation)**: Albumentations를 이용한 `Resize`, `Rotate`, `HorizontalFlip`, `ColorJitter`, `Normalize` 동적 적용.
+
+---
+
+## 🚀 디렉토리 구조 및 사용법
+
+```
+Deep_Learning_Analysis/
+│
+├── model.py                            # 5가지 아키텍처 클래스 정의 및 파라미터 검증 스크립트
+├── dataset.py                          # Albumentations 파이프라인 및 DataLoader 구축
+├── run_training_Baseline.ipynb         # [학습] 기존 Baseline 모델 (26M 파라미터)
+├── run_training_Baseline_GAP.ipynb     # [학습] 최적화된 초경량 GAP 모델 (540K 파라미터)
+├── run_training_EfficientNetB0.ipynb   # [학습] EfficientNet-B0 모델 (완료 - 99.73% 달성)
+├── run_training_ResNet50.ipynb         # [학습] ResNet50 모델
+├── run_training_MobileNetV3.ipynb      # [학습] MobileNetV3 모델
+│
+├── team_presentation.html              # 프로젝트 기획 및 결과 요약 PPT 웹 버전
+└── README.md                           # 현재 설명 파일
 ```
 
-### 2. 데이터셋 배치
-로컬 환경의 데이터셋 폴더 구조를 아래와 같이 배치해야 합니다. (Git 업로드에서는 제외됨)
-```
-New Plant Diseases Dataset(Augmented)/
-└── New Plant Diseases Dataset(Augmented)/
-    ├── train/
-    │   ├── Tomato___Healthy/
-    │   └── ... (38개 클래스 폴더)
-    └── valid/
-        ├── Tomato___Healthy/
-        └── ... (38개 클래스 폴더)
-```
-
-### 3. 학습 모델 실행
-**스크립트로 실행 시**:
-```bash
-python train.py
-```
-**주피터 노트북으로 실행 및 분석 시**:
-`run_training.ipynb` 파일을 열어 순차적으로 셀을 실행시킵니다.
-```bash
-jupyter notebook run_training.ipynb
-```
+*(참고: 용량이 큰 데이터셋 이미지 폴더 및 학습된 가중치 `.pth` 파일들은 `.gitignore` 규칙에 의해 저장소에 업로드되지 않습니다.)*

@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>딥러닝 기반 농작물 병해충 진단 시스템 - 팀 프로젝트 발표</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-light: #DBEAFE;
+            --primary-dark: #1E40AF;
+            --accent: #059669;
+            --accent-light: #D1FAE5;
+            --warning: #D97706;
+            --warning-light: #FEF3C7;
+            --danger: #DC2626;
+            --bg: #FFFFFF;
+            --bg-soft: #F8FAFC;
+            --bg-muted: #F1F5F9;
+            --text: #1E293B;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --border: #E2E8F0;
+            --shadow: 0 4px 24px rgba(0,0,0,0.06);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.08);
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, sans-serif;
+            background: var(--bg-soft);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .slide-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1100px;
+            min-height: 620px;
+            background: var(--bg);
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            padding: 52px 64px;
+            position: relative;
+            border: 1px solid var(--border);
+            animation: fadeIn 0.35s ease;
+        }
+
+        .slide.active { display: flex; flex-direction: column; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── 타이포그래피 ── */
+        .slide-title {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--text);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .slide-subtitle {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--bg-muted);
+        }
+
+        .slide-body { flex: 1; }
+
+        h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin: 20px 0 10px;
+        }
+
+        p, li {
+            font-size: 15.5px;
+            line-height: 1.75;
+            color: var(--text-secondary);
+        }
+
+        ul { padding-left: 22px; }
+        li { margin-bottom: 6px; }
+        li strong { color: var(--text); }
+
+        /* ── 표지 슬라이드 ── */
+        .cover {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #F0F9FF 0%, #FFFFFF 40%, #F0FDF4 100%);
+        }
+
+        .cover-icon { font-size: 64px; margin-bottom: 20px; }
+
+        .cover .slide-title {
+            font-size: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .cover .slide-subtitle {
+            font-size: 18px;
+            border: none;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            padding-bottom: 0;
+        }
+
+        .cover-meta {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.8;
+        }
+
+        /* ── 코드 블록 ── */
+        .code-block {
+            background: var(--bg-soft);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13.5px;
+            line-height: 1.7;
+            overflow-x: auto;
+            color: var(--text);
+            margin: 12px 0;
+        }
+
+        .code-block .keyword { color: #7C3AED; font-weight: 500; }
+        .code-block .func { color: #2563EB; }
+        .code-block .string { color: #059669; }
+        .code-block .comment { color: #94A3B8; font-style: italic; }
+        .code-block .number { color: #D97706; }
+
+        /* ── 카드 그리드 ── */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .card-grid.three-col { grid-template-columns: repeat(3, 1fr); }
+
+        .card {
+            background: var(--bg-soft);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .card-icon { font-size: 28px; margin-bottom: 10px; }
+        .card-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+        .card-desc { font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; }
+
+        /* ── 결과 테이블 ── */
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .result-table th {
+            background: var(--primary);
+            color: white;
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .result-table td {
+            padding: 13px 20px;
+            font-size: 14.5px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .result-table tr:nth-child(even) td { background: var(--bg-soft); }
+        .result-table tr:last-child td { border-bottom: none; }
+
+        /* ── 하이라이트 배지 ── */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+        }
+
+        .badge-primary { background: var(--primary-light); color: var(--primary-dark); }
+        .badge-accent { background: var(--accent-light); color: var(--accent); }
+        .badge-warning { background: var(--warning-light); color: var(--warning); }
+
+        /* ── 아키텍처 플로우 ── */
+        .arch-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .arch-block {
+            background: var(--primary-light);
+            border: 1px solid #BFDBFE;
+            border-radius: 10px;
+            padding: 14px 16px;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .arch-block-title { font-size: 12px; font-weight: 700; color: var(--primary-dark); }
+        .arch-block-detail { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+
+        .arch-block.classifier {
+            background: var(--accent-light);
+            border-color: #A7F3D0;
+        }
+        .arch-block.classifier .arch-block-title { color: var(--accent); }
+
+        .arch-arrow { font-size: 18px; color: var(--text-muted); }
+
+        /* ── 큰 숫자 결과 ── */
+        .result-highlight {
+            display: flex;
+            gap: 24px;
+            margin: 24px 0;
+        }
+
+        .result-box {
+            flex: 1;
+            text-align: center;
+            padding: 28px 20px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--bg-soft);
+        }
+
+        .result-box-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .result-box-value {
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .result-box-value.blue { color: var(--primary); }
+        .result-box-value.green { color: var(--accent); }
+        .result-box-value.orange { color: var(--warning); }
+
+        /* ── 파일 트리 ── */
+        .file-tree {
+            background: var(--bg-soft);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px 28px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13.5px;
+            line-height: 2;
+            color: var(--text);
+            margin: 12px 0;
+        }
+
+        .file-tree .folder { color: var(--primary); font-weight: 600; }
+        .file-tree .file { color: var(--text-secondary); }
+        .file-tree .desc { color: var(--text-muted); font-family: 'Noto Sans KR', sans-serif; font-size: 12.5px; }
+
+        /* ── 타임라인 ── */
+        .timeline {
+            position: relative;
+            margin: 20px 0 20px 20px;
+            padding-left: 28px;
+            border-left: 3px solid var(--border);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 22px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -35px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid var(--primary-light);
+        }
+
+        .timeline-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+        .timeline-desc { font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; }
+
+        /* ── 네비게이션 ── */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 40px;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border);
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: var(--bg-soft);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .nav-btn:disabled:hover {
+            background: var(--bg-soft);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .page-indicator {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.35s ease;
+            z-index: 200;
+        }
+
+        /* ── 인용 박스 ── */
+        .insight-box {
+            background: linear-gradient(135deg, #EFF6FF, #F0FDF4);
+            border-left: 4px solid var(--primary);
+            border-radius: 0 var(--radius) var(--radius) 0;
+            padding: 18px 24px;
+            margin: 16px 0;
+        }
+
+        .insight-box p {
+            font-size: 14.5px;
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 12px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<div class="slide-container">
+
+    <!-- ════════════════ 슬라이드 1: 표지 ════════════════ -->
+    <div class="slide cover active" id="slide-1">
+        <div class="cover-icon">🌿</div>
+        <div class="slide-title">딥러닝 기반 농작물 잎 이미지<br>병해충 진단 시스템</div>
+        <div class="slide-subtitle">PyTorch CNN 파이프라인 설계 및 베이스라인 실험 결과 보고</div>
+        <div class="cover-meta">
+            딥러닝 전공 심화 프로젝트<br>
+            2026년 6월
+        </div>
+    </div>
+
+    <!-- ════════════════ 슬라이드 2: 목차 ════════════════ -->
+    <div class="slide" id="slide-2">
+        <div class="slide-title">📋 목차</div>
+        <div class="slide-subtitle">발표 구성 및 흐름 안내</div>
+        <div class="slide-body">
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-icon">🎯</div>
+                    <div class="card-title">1. 문제 정의</div>
+                    <div class="card-desc">농업 병해충 진단의 필요성과 프로젝트 목표</div>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📊</div>
+                    <div class="card-title">2. 데이터셋 분석</div>
+                    <div class="card-desc">Kaggle 데이터셋 구성 및 전처리·증강 전략</div>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🧠</div>
+                    <div class="card-title">3. 모델 아키텍처</div>
+                    <div class="card-desc">4-Block CNN 구조 설계 및 텐서 흐름 분석</div>
+                </div>
+                <div class="card">
+                    <div class="card-icon">⚙️</div>
+                    <div class="card-title">4. 학습 설정</div>
+                    <div class="card-desc">옵티마이저, 손실 함수 및 하이퍼파라미터 설정</div>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📈</div>
+                    <div class="card-title">5. 실험 결과</div>
+                    <div class="card-desc">10 Epoch 학습 성능 및 결과 해석</div>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🚀</div>
+                    <div class="card-title">6. 향후 계획</div>
+                    <div class="card-desc">모델 고도화 및 Grad-CAM 도입 전략</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════ 슬라이드 3: 문제 정의 ════════════════ -->
+    <div class="slide" id="slide-3">
+        <div class="slide-title">🎯 1. 문제 정의</div>
+        <div class="slide-subtitle">농업 분야에서 딥러닝 기반 병해충 자동 진단의 필요성</div>
+        <div class="slide-body">
+            <h3>현재의 문제 상황</h3>
+            <ul>
+                <li>전 세계 농작물의 약 <strong>20~40%</strong>가 매년 병해충으로 인해 손실</li>
+                <li>전문가 육안 진단에 의존 → <strong>지리적·시간적 접근성</strong> 한계 존재</li>
+                <li>비전문가(농민)가 초기 증상을 정확히 구분하기 어려워 <strong>대응 시기 지연</strong></li>
+            </ul>
+
+            <h3>우리의 해결 목표</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-icon">📱</div>
+                    <div class="card-title">접근성 확보</div>
+                    <div class="card-desc">스마트폰 촬영 이미지 1장으로 38종 병해충을 자동 분류하는 딥러닝 모델 구축</div>
+                </div>
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <div class="card-title">실시간 진단</div>
+                    <div class="card-desc">GPU 가속 추론 환경을 활용하여 빠른 응답 시간 내에 높은 정확도의 진단 결과 제공</div>
+                </div>
+            </div>
+
+            <div class="insight-box" style="margin-top: 20px;">
+                <p>💡 <strong>핵심 가치:</strong> 전문 인력 없이도 모바일 디바이스를 통해 누구나 즉시 병해충 종류를 식별하고 조기 대응할 수 있는 기술적 기반을 구축한다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════ 슬라이드 4: 데이터셋 개요 ════════════════ -->
+    <div class="slide" id="slide-4">
+        <div class="slide-title">📊 2-1. 데이터셋 개요</div>
+        <div class="slide-subtitle">Kaggle New Plant Diseases Dataset (Augmented)</div>
+        <div class="slide-body">
+            <div class="result-highlight">
+                <div class="result-box">
+                    <div class="result-box-label">학습 이미지</div>
+                    <div class="result-box-value blue">140,590</div>
+                </div>
+                <div class="result-box">
+                    <div class="result-box-label">검증 이미지</div>
+                    <div class="result-box-value green">35,144</div>
+                </div>
+                <div class="result-box">
+                    <div class="result-box-label">분류 클래스</div>
+                    <div class="result-box-value orange">38</div>
+                </div>
+            </div>
+
+            <h3>클래스 구성 예시</h3>
+            <table class="result-table">
+                <tr><th>작물</th><th>포함 클래스</th><th>클래스 수</th></tr>
+                <tr><td>🍎 Apple</td><td>Apple Scab, Black Rot, Cedar Rust, Healthy</td><td>4</td></tr>
+                <tr><td>🍅 Tomato</td><td>Bacterial Spot, Early/Late Blight, Mosaic Virus, Healthy 등</td><td>10</td></tr>
+                <tr><td>🥔 Potato</td><td>Early Blight, Late Blight, Healthy</td><td>3</td></tr>
+                <tr><td>🍇 Grape</td><td>Black Rot, Esca, Leaf Blight, Healthy</td><td>4</td></tr>
+                <tr><td>🌽 Corn</td><td>Cercospora, Common Rust, Northern Leaf Blight, Healthy</td><td>4</td></tr>
+            </table>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">* 총 10종 작물, 38개 클래스 (정상 + 질병 포함)</p>
+        </div>
+    </div>
+
+    <!-- ════════════════ 슬라이드 5: 데이터 전처리 및 증강 ════════════════ -->
+    <div class="slide" id="slide-5">
+        <div class="slide-title">📊 2-2. 데이터 전처리 및 증강</div>
+        <div class="slide-subtitle">Albumentations 라이브러리 기반의 이미지 변환 파이프라인</div>
+        <div class="slide-body">
+            <div class="two-col">
+                <div>
+                    <h3>공통 전처리</h3>
+                    <div class="card" style="margin-top: 8px;">
+                        <div class="card-title">Resize (224×224)</div>
+                        <div class="card-desc">CNN 입력 해상도 통일</div>
+                    </div>
+                    <div class="card" style="margin-top: 8px;">
+                        <div class="card-title">Normalize (ImageNet μ, σ)</div>
+                        <div class="card-desc">경사 하강법 수렴 속도 향상</div>
+                    </div>
+                    <div class="card" style="margin-top: 8px;">
+                        <div class="card-title">ToTensorV2</div>
+                        <div class="card-desc">PyTorch FloatTensor로 변환</div>
+                    </div>
+                </div>
+                <div>
+                    <h3>학습 전용 증강 <span class="badge badge-accent">Train Only</span></h3>
+                    <div class="card" style="margin-top: 8px;">
+                        <div class="card-icon">🔄</div>
+                        <div class="card-title">RandomRotation (±30°)</div>
+                        <div class="card-desc">촬영 각도 변화에 대한 기하학적 불변성 학습</div>
+                    </div>
+                    <div class="card" style="margin-top: 8px;">
+                        <div class="card-icon">↔️</div>
+                        <div class="card-title">HorizontalFlip (p=0.5)</div>
+                        <div class="card-desc">좌우 비대칭 패턴을 균등하게 학습</div>
+                    </div>
+                    <div class="card" style="margin-top: 8px;">
+                        <div class="card-icon">🎨</div>
+                        <div class="card-title">ColorJitter</div>
+                        <div class="card-desc">밝기·대비·채도·색조 변화로 조도 강건성 확보</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════ 슬라이드 6: 모델 아키텍처 ════════════════ -->
+    <div class="slide" id="slide-6">
+        <div class="slide-title">🧠 3-1. 베이스라인 CNN 아키텍처</div>
+        <div class="slide-subtitle">PlantDiseaseCNN — 4-Block Convolutional Neural Network</div>
+        <div class="slide-body">
+            <h3>텐서 차원 흐름 (Feature Mapping)</h3>
+            <div class="arch-flow">
+                <div class="arch-block">
+                    <div class="arch-block-title">Input</div>
+                    <div class="arch-block-detail">(3, 224, 224)</div>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-block">
+                    <div class="arch-block-title">Block 1</div>
+                    <div class="arch-block-detail">(32, 112, 112)</div>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-block">
+                    <div class="arch-block-title">Block 2</div>
+                    <div class="arch-block-detail">(64, 56, 56)</div>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-block">
+                    <div class="arch-block-title">Block 3</div>
+                    <div class="arch-block-detail">(128, 28, 28)</div>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-block">
+                    <div class="arch-block-title">Block 4</div>
+                    <div class="arch-block-detail">(256, 14, 14)</div>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-block classifier">
+                    <div class="arch-block-title">Classifier</div>
+                    <div class="arch-block-detail">50176 → 512 → 38</div>
+                </div>
+            </div>
+
+            <h3>각 블록 내부 구성</h3>
+            <div class="two-col">
+                <div>
+                    <div class="code-block">
+                        <span class="comment"># Conv Block 구성 흐름</span><br>
+                        <span class="func">Conv2d</span>(3×3, padding=1)<br>
+                        → <span class="func">BatchNorm2d</span><br>
+                        → <span class="func">ReLU</span><br>
+                        → <span class="func">MaxPool2d</span>(2×2)
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block">
+                        <span class="comment"># Classifier 구성 흐름</span><br>
+                        <span class="func">Flatten</span><br>
+                        → <span class="func">Linear</span>(50176, 512)<br>
+                        → <span class="func">ReLU</span> → <span class="func">Dropout</span>(0.5)<br>
+                        → <span class="func">Linear</span>(512, 38)
+                    </div>
+                </div>
+            </div>
+
+            <div class="insight-box">
+                <p>💡 채널 수를 <strong>32→64→128→256</strong>으로 점진적 확장하며 고수준 의미론적 특징을 추출하고, MaxPool로 공간 차원을 절반씩 축소하여 계산 효율성을 확보합니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════ 슬라이드 7: 향후 비교 모델 ════════════════ -->
+    <div class="slide" id="slide-7">
+        <div class="slide-title">🧠 3-2. 향후 비교 예정 모델 <span class="badge badge-warning">미구현 · 진행 예정</span></div>
+        <div class="slide-subtitle">아직 구현되지 않았으며, 향후 베이스라인 대비 성능 비교를 위해 도입할 사전학습 네트워크 후보군</div>
+        <div class="slide-body">
+            <div class="card-grid three-col">
+                <div class="card">
+                    <div class="card-icon">🏗️</div>
+                    <div class="card-title">ResNet50</div>
+                    <div class="card-desc">
+                        <span class="badge badge-primary">학습 안정성</span><br><br>
+                        잔차 연결(Shortcut Connection)을 통해 경사 소실 문제를 해결하고 깊은 네트워크에서도 안정적 학습이 가능합니다.
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <div class="card-title">EfficientNet-B0</div>
+                    <div class="card-desc">
+                        <span class="badge badge-accent">파라미터 효율성</span><br><br>
+                        Compound Scaling 기법으로 깊이·너비·해상도를 최적 비율로 동시에 확장하여 적은 파라미터로 높은 정확도를 달성합니다.
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📱</div>
+                    <div class="card-title">MobileNetV3</div>
+                    <div class="card-desc">
+                        <span class="badge badge-warning">경량화·추론 속도</span><br><br>
+                        Depthwise Separable Conv + SE Block을 결합한 경량 구조로 모바일·IoT 디바이스에서 실시간 추론이 가능합니다.
+                    </div>
+                </div>
+            </div>
+
+            <div class="insight-box" style="margin-top: 24px;">
+                <p>⏳ <strong>진행 상태:</strong> 위 3개 모델은 현재 <strong>미구현 상태</strong>이며, 향후 단계에서 Transfer Learning을 적용하여 구현할 예정입니다. 베이스라인 CNN(97.84%)의 정확도를 기준선으로 삼고, 정확도·파라미터 수·추론 시간을 정량적으로 비교하여 최적 모델을 선정할 계획입니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════ 슬라이드 8: 학습 설정 ════════════════ -->
+    <div class="slide" id="slide-8">
+        <div class="slide-title">⚙️ 4. 학습 설정</div>
+        <div class="slide-subtitle">하이퍼파라미터, 손실 함수 및 최적화 전략</div>
+        <div class="slide-body">
+            <table class="result-table">
+                <tr><th>항목</th><th>설정값</th><th>선택 이유</th></tr>
+                <tr><td><strong>프레임워크</strong></td><td>PyTorch 2.x + CUDA</td><td>GPU 가속 병렬 연산</td></tr>
+                <tr><td><strong>손실 함수</strong></td><td>CrossEntropyLoss</td><td>다중 분류(38 클래스) 최적 손실 함수</td></tr>
+                <tr><td><strong>옵티마이저</strong></td><td>Adam</td><td>적응적 학습률, 안장점 돌파 능력</td></tr>
+                <tr><td><strong>학습률 (LR)</strong></td><td>0.001</td><td>Adam 기본 권장값, 안정적 수렴</td></tr>
+                <tr><td><strong>배치 사이즈</strong></td><td>32</td><td>GPU 메모리 대비 효율적 크기</td></tr>
+                <tr><td><strong>에포크</strong></td><td>10</td><td>베이스라인 성능 확인용 초기 실험</td></tr>
+                <tr><td><strong>Dropout</strong></td><td>0.5</td><td>완전 연결 계층의 과적합 방지</td></tr>
+            </table>
+
+            <h3 style="margin-top: 24px;">가중치 저장 전략</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title">💾 best_model.pth</div>
+                    <div class="card-desc">검증 정확도(Val Acc) 최고치를 갱신할 때마다 자동 저장 → 과적합 발생 시에도 최적 시점의 가중치 확보</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">💾 last_model.pth</div>
+                    <div class="card-desc">마지막 에포크 종료 후 저장 → 학습 재개(Resume) 및 추가 학습(Fine-tuning)에 활용</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════ 슬라이드 9: 실험 결과 ════════════════ -->
+    <div class="slide" id="slide-9">
+        <div class="slide-title">📈 5-1. 베이스라인 실험 결과</div>
+        <div class="slide-subtitle">10 Epoch 학습 완료 후 측정된 최종 성능 지표</div>
+        <div class="slide-body">
+            <div class="result-highlight">
+                <div class="result-box">
+                    <div class="result-box-label">Train Loss</div>
+                    <div class="result-box-value orange">0.3847</div>
+                </div>
+                <div class="result-box">
+                    <div class="result-box-label">Val Loss</div>
+                    <div class="result-box-value blue">0.0675</div>
+                </div>
+                <div class="result-box" style="background: linear-gradient(135deg, #F0FDF4, #DCFCE7); border-color: #A7F3D0;">
+                    <div class="result-box-label">Val Accuracy</div>
+                    <div class="result-box-value green">97.84%</div>
+                </div>
+            </div>
+
+            <div class="insight-box">
+                <p>🔬 <strong>핵심 관찰:</strong> Validation Loss(0.0675)가 Train Loss(0.3847)보다 현저히 낮게 측정되었습니다. 이는 일반적인 과적합 모델에서는 나타나지 않는 긍정적 현상으로, 데이터 증강과 Dropout이 설계 의도대로 정확히 작동했음을 입증합니다.</p>
+            </div>
+
+            <table class="result-table" style="margin-top: 16px;">
+                <tr><th>지표</th><th>측정값</th><th>해석</th></tr>
+                <tr><td>Train Loss</td><td>0.3847</td><td>증강+Dropout으로 학습 난이도가 의도적으로 높게 유지됨</td></tr>
+                <tr><td>Val Loss</td><td>0.0675</td><td>정제된 원본 이미지에서 극히 낮은 오차 달성</td></tr>
+                <tr><td>Val Accuracy</td><td>97.84%</td><td>38개 클래스 중 대부분을 정확히 분류</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- ════════════════ 슬라이드 10: 결과 해석 ════════════════ -->
+    <div class="slide" id="slide-10">
+        <div class="slide-title">📈 5-2. 결과 해석</div>
+        <div class="slide-subtitle">Val Loss &lt; Train Loss 현상의 원인 분석</div>
+        <div class="slide-body">
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-title">1단계: 학습(Train) 시 — 의도적 난이도 상향</div>
+                    <div class="timeline-desc">
+                        매 반복마다 입력 이미지에 <strong>Rotation, Flip, ColorJitter</strong>가 무작위로 적용되어 데이터 일관성이 크게 흐트러짐.<br>
+                        Dropout(p=0.5)이 완전 연결 계층의 50% 뉴런을 무작위 비활성화 → <strong>모델이 가혹한 환경에서 학습</strong>하므로 Train Loss는 상대적으로 높게 유지.
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-title">2단계: 검증(Eval) 시 — 정제된 평가 환경</div>
+                    <div class="timeline-desc">
+                        데이터 증강이 <strong>완전히 배제</strong>된 깨끗한 원본 이미지가 입력됨.<br>
+                        <code>model.eval()</code>에 의해 Dropout이 비활성화되어 <strong>모든 뉴런의 연결 정보</strong>가 온전하게 예측에 참여.
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-title">3단계: 결론 — 강인한 일반화 성능 확보</div>
+                    <div class="timeline-desc">
+                        학습 시 가혹한 제약 덕분에 모델이 특정 픽셀에 의존하는 <strong>암기형 과적합을 탈피</strong>하고,<br>
+                        질병의 핵심 시각적 패턴(반점, 황화 등)을 <strong>일반화된 표현</strong>으로 내재화함.
+                    </div>
+                </div>
+            </div>
+
+            <div class="insight-box">
+                <p>✅ <strong>결론:</strong> Train Loss > Val Loss 현상은 정규화(Regularization) 기법이 성공적으로 작동한 증거이며, 97.84%의 검증 정확도는 베이스라인 모델로서 매우 우수한 수준의 일반화 성능을 달성했음을 의미합니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════ 슬라이드 11: 프로젝트 구조 ════════════════ -->
+    <div class="slide" id="slide-11">
+        <div class="slide-title">📁 프로젝트 파일 구조</div>
+        <div class="slide-subtitle">하이브리드 구성: 코어 모듈(.py) + 실행 노트북(.ipynb)</div>
+        <div class="slide-body">
+            <div class="file-tree">
+                <span class="folder">📂 project/</span><br>
+                ├── <span class="file">model.py</span> <span class="desc">← CNN 아키텍처 정의 (코어 모듈)</span><br>
+                ├── <span class="file">dataset.py</span> <span class="desc">← Albumentations 데이터 파이프라인 (코어 모듈)</span><br>
+                ├── <span class="file">train.py</span> <span class="desc">← 터미널 단독 실행용 학습 스크립트</span><br>
+                ├── <span class="file">run_training.ipynb</span> <span class="desc">← ✨ 통합 실행 노트북 (학습 + 시각화 + 저장)</span><br>
+                ├── <span class="file">dataset_dataloader_test.ipynb</span> <span class="desc">← GPU 연산 및 데이터 로딩 검증용</span><br>
+                ├── <span class="file">best_model.pth</span> <span class="desc">← 최고 Val Acc 시점의 가중치</span><br>
+                ├── <span class="file">last_model.pth</span> <span class="desc">← 마지막 에포크 가중치</span><br>
+                └── <span class="folder">📂 New Plant Diseases Dataset(Augmented)/</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span class="folder">📂 New Plant Diseases Dataset(Augmented)/</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="folder">📂 train/</span> <span class="desc">← 38개 클래스 폴더 (140,590장)</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span class="folder">📂 valid/</span> <span class="desc">← 38개 클래스 폴더 (35,144장)</span>
+            </div>
+
+            <div class="insight-box">
+                <p>💡 <strong>하이브리드 방식:</strong> 핵심 로직은 <code>.py</code> 모듈로 분리하여 재사용성과 유지보수성을 확보하고, <code>run_training.ipynb</code>에서 import하여 학습·시각화·가중치 저장을 한 번에 수행합니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════ 슬라이드 12: 향후 계획 ════════════════ -->
+    <div class="slide" id="slide-12">
+        <div class="slide-title">🚀 6. 향후 계획</div>
+        <div class="slide-subtitle">모델 고도화 및 설명 가능한 AI(XAI) 적용 로드맵</div>
+        <div class="slide-body">
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-title">📌 Phase 1 — 사전학습 모델 비교 실험</div>
+                    <div class="timeline-desc">ResNet50, EfficientNet-B0, MobileNetV3를 Transfer Learning하여 베이스라인(97.84%) 대비 정확도·파라미터 수·추론 속도를 정량 비교합니다.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-title">📌 Phase 2 — Grad-CAM 시각화 도입</div>
+                    <div class="timeline-desc">최종 합성곱 계층의 역전파 구배 정보를 활용하여 모델이 잎의 어느 부위(반점, 황화 구역 등)를 주시하여 판단했는지 히트맵으로 시각화합니다.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-title">📌 Phase 3 — 성능 최적화 및 서빙</div>
+                    <div class="timeline-desc">Learning Rate Scheduler, Early Stopping 등 학습 전략을 정교화하고, 최종 선정 모델을 ONNX 등으로 변환하여 모바일 배포 가능성을 검증합니다.</div>
+                </div>
+            </div>
+
+            <div class="card-grid" style="margin-top: 16px;">
+                <div class="card" style="border-left: 4px solid var(--primary);">
+                    <div class="card-title">🔍 Grad-CAM이란?</div>
+                    <div class="card-desc">Gradient-weighted Class Activation Mapping의 약어로, 딥러닝 모델의 블랙박스 문제를 해소하기 위해 예측의 근거가 되는 이미지 영역을 히트맵으로 시각화하는 설명 가능한 AI(XAI) 기법입니다.</div>
+                </div>
+                <div class="card" style="border-left: 4px solid var(--accent);">
+                    <div class="card-title">🎯 기대 효과</div>
+                    <div class="card-desc">AI 진단 결과의 신뢰도를 객관적으로 검증할 수 있으며, 농민·연구자가 모델의 판단 근거를 직관적으로 이해하여 현장 활용에 대한 신뢰를 확보할 수 있습니다.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════ 슬라이드 13: 마무리 ════════════════ -->
+    <div class="slide cover" id="slide-13" style="background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 40%, #EFF6FF 100%);">
+        <div class="cover-icon">🎉</div>
+        <div class="slide-title">감사합니다</div>
+        <div class="slide-subtitle">질의응답 (Q&A)</div>
+        <div class="cover-meta" style="margin-top: 24px;">
+            딥러닝 기반 농작물 잎 이미지 병해충 진단 시스템<br>
+            PyTorch CNN Pipeline &amp; Baseline Results
+        </div>
+    </div>
+
+</div>
+
+<!-- ── 네비게이션 바 ── -->
+<nav class="nav-bar">
+    <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">← 이전</button>
+    <span class="page-indicator" id="pageIndicator">1 / 13</span>
+    <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">다음 →</button>
+</nav>
+
+<script>
+    let currentSlide = 1;
+    const totalSlides = 13;
+
+    function showSlide(n) {
+        document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+        document.getElementById(`slide-${n}`).classList.add('active');
+        document.getElementById('pageIndicator').textContent = `${n} / ${totalSlides}`;
+        document.getElementById('prevBtn').disabled = n === 1;
+        document.getElementById('nextBtn').disabled = n === totalSlides;
+        document.getElementById('progressBar').style.width = `${(n / totalSlides) * 100}%`;
+    }
+
+    function changeSlide(direction) {
+        const next = currentSlide + direction;
+        if (next >= 1 && next <= totalSlides) {
+            currentSlide = next;
+            showSlide(currentSlide);
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
+    });
+
+    showSlide(1);
+</script>
+
+</body>
+</html>
