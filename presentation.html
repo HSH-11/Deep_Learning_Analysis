@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 도메인 적응 연구 발표</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --text-main: #1d1d1f;
+            --text-secondary: #86868b;
+            --accent-color: #0071e3;
+            --accent-glow: rgba(0, 113, 227, 0.2);
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --danger: #ff3b30;
+            --success: #34c759;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            color: var(--text-main);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Background decoration */
+        .bg-circle-1, .bg-circle-2 {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+        }
+        .bg-circle-1 {
+            width: 500px;
+            height: 500px;
+            background: rgba(186, 218, 255, 0.6);
+            top: -100px;
+            right: -100px;
+        }
+        .bg-circle-2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 224, 230, 0.6);
+            bottom: -50px;
+            left: -50px;
+        }
+
+        .slide-container {
+            width: 90%;
+            max-width: 1200px;
+            height: 80vh;
+            position: relative;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 60px;
+            box-sizing: border-box;
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        h1, h2 {
+            font-family: 'Outfit', sans-serif;
+            margin: 0 0 20px 0;
+        }
+
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(90deg, #1d1d1f, #434343);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            color: var(--accent-color);
+        }
+
+        p, li {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            margin-bottom: 15px;
+        }
+
+        .highlight {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+        .danger {
+            color: var(--danger);
+            font-weight: 600;
+        }
+        .success {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .content-row {
+            display: flex;
+            gap: 40px;
+            flex: 1;
+        }
+
+        .text-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .img-col {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .img-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .img-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .img-card img {
+            max-width: 100%;
+            max-height: 350px;
+            border-radius: 8px;
+        }
+
+        .img-caption {
+            margin-top: 15px;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .metric-box {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.04);
+            text-align: center;
+            margin: 10px 0;
+            border: 1px solid rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-value {
+            font-size: 3.5rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        /* Controls */
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            right: 40px;
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        button {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        button:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px var(--accent-glow);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: var(--accent-color);
+            transition: width 0.4s ease;
+        }
+
+        /* Title Slide specific */
+        .title-slide {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .title-slide h1 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        .title-slide p {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-circle-1"></div>
+    <div class="bg-circle-2"></div>
+
+    <div class="slide-container">
+        
+        <!-- Slide 1 -->
+        <div class="slide active title-slide">
+            <h1>실제 환경(In-the-wild) 식물 질병 진단</h1>
+            <p>AI 도메인 적응(Domain Adaptation) 연구와 한계 극복기</p>
+            <div style="margin-top: 50px; font-weight: 600; color: var(--accent-color);">[최종 결과 보고]</div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <h2>The Problem: 충격적인 도메인 시프트</h2>
+            <div class="content-row">
+                <div class="text-col">
+                    <p>우리는 단색 배경의 깨끗한 <strong>실험실 데이터(PlantVillage)</strong>로 완벽한 인공지능을 만들었습니다.</p>
+                    <div class="metric-box">
+                        <div style="color: var(--text-secondary); font-size: 1.1rem;">실험실 검증 정확도</div>
+                        <div class="metric-value success">99.73%</div>
+                    </div>
+                    <p>하지만, 실제 흙과 배경이 섞인 <strong>야외 데이터(PlantDoc)</strong>를 테스트하자 결과는 처참했습니다.</p>
+                    <div class="metric-box">
+                        <div style="color: var(--text-secondary); font-size: 1.1rem;">야외 테스트 정확도</div>
+                        <div class="metric-value danger">19.12%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <h2>Analysis: 왜 실패했을까? (Grad-CAM)</h2>
+            <div class="content-row">
+                <div class="text-col">
+                    <p>AI가 대체 <strong>어디를 보고 판단하는지</strong> 뇌 구조를 시각화 해보았습니다.</p>
+                    <ul>
+                        <li><span class="highlight">발견:</span> AI는 잎사귀의 병변을 보지 않고 있었습니다.</li>
+                        <li><span class="danger">오류 원인:</span> 흙, 가지, 배경의 경계선에 집중하며 엉뚱한 식물로 오해(Overfitting)했습니다.</li>
+                    </ul>
+                    <p>우리는 이것이 <strong>Domain Shift (도메인 이동) 현상</strong>임을 증명했습니다.</p>
+                </div>
+                <div class="img-col">
+                    <div class="img-card">
+                        <!-- Path mapped to local assets copied via terminal -->
+                        <img src="assets/gradcam.png" alt="Grad-CAM Analysis">
+                        <div class="img-caption">실제는 사과나무인데, 배경을 보고 딸기병으로 오답을 내는 모습</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+            <h2>Hypothesis 1: 배경이 문제면 지우면 될까? (V3)</h2>
+            <div class="content-row">
+                <div class="text-col">
+                    <p>인간의 직관적인 해결책: <strong>"전체 이미지의 배경(흙, 가지)을 AI(rembg)로 다 날려버리자!"</strong></p>
+                    <ul>
+                        <li>2,800여장의 전체 데이터를 누끼 처리 후 재학습(파인튜닝) 시도.</li>
+                        <li><span class="danger">결과: 47.81% (오히려 하락)</span></li>
+                    </ul>
+                    <div class="metric-box" style="padding: 20px;">
+                        <strong>실패 증명 (인사이트)</strong><br><br>
+                        배경을 강제로 날리는 물리적 전처리는 정답을 유추할 <strong>'환경적 문맥(Context)'</strong>을 파괴하며, 질병으로 썩어 들어간 잎 끝부분까지 훼손시킨다.
+                    </div>
+                </div>
+                <div class="img-col">
+                    <div class="img-card">
+                        <img src="assets/curve_v3.png" alt="V3 Curve">
+                        <div class="img-caption">V3 학습 곡선 (오버피팅 없이 47%에서 수렴)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+            <h2>Hypothesis 2: 과거 데이터를 섞으면 어떨까? (V4)</h2>
+            <div class="content-row">
+                <div class="text-col">
+                    <p>또 다른 직관: <strong>"기존 깨끗한 데이터(5000장)를 야외 데이터와 섞어서 질병 패턴 망각을 막아보자!"</strong></p>
+                    <ul>
+                        <li>단계적 파인튜닝, TTA, 혼합 도메인 학습 기법 총동원.</li>
+                        <li><span class="danger">결과: 47.01% (역시 실패)</span></li>
+                    </ul>
+                    <div class="metric-box" style="padding: 20px;">
+                        <strong>실패 증명 (인사이트)</strong><br><br>
+                        모델이 가혹한 야외 환경에 뼈를 깎으며 적응(Adaptation)해야 할 시점에, <strong>쉬운 데이터가 섞여 들어오면서 모델의 시선이 분산</strong>되고 안일해졌다.
+                    </div>
+                </div>
+                <div class="img-col">
+                    <div class="img-card">
+                        <img src="assets/curve_v4.png" alt="V4 Curve">
+                        <div class="img-caption">V4 혼합 학습 곡선 (타겟 도메인 평가에서 47% 한계)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide">
+            <h2>The Solution: 딥러닝 본연의 강건성 (V2)</h2>
+            <div class="content-row">
+                <div class="text-col">
+                    <p>꼼수(전처리, 데이터 혼합)를 버리고 <strong>정공법</strong>을 택했습니다.</p>
+                    <ul>
+                        <li><span class="highlight">타겟 도메인(야외 데이터)만을 집중 학습</span></li>
+                        <li>가혹한 데이터 증강(ColorJitter, RandomCrop)으로 노이즈 내성 강화</li>
+                        <li>수학적 최적화 (Cosine Annealing LR, Label Smoothing)</li>
+                    </ul>
+                    <div class="metric-box" style="background: rgba(52, 199, 89, 0.1); border: 2px solid var(--success);">
+                        <div style="color: var(--success); font-size: 1.2rem;">최종 야외 적응 정확도</div>
+                        <div class="metric-value success">60.56%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide title-slide">
+            <h2>Conclusion</h2>
+            <p style="font-size: 1.8rem; margin: 40px 0; line-height: 1.5;">
+                극한의 Domain Shift 현상을 극복할 때, <br>
+                인간의 직관에 의존한 물리적 전처리(배경 제거)는 <strong>함정</strong>입니다.
+            </p>
+            <p style="font-size: 1.4rem; color: var(--accent-color); font-weight: 600;">
+                모델이 가혹한 환경에 노출된 <strong>원본 데이터</strong> 그 자체를 <br>
+                수학적 최적화와 강건한 증강기법을 통해 스스로 이겨내게 하는 것.<br>
+                그것이 <span style="font-size: 1.8rem; color: var(--text-main);">진정한 도메인 적응(Domain Adaptation)</span> 입니다.
+            </p>
+        </div>
+
+        <!-- Slide 8: Future Works -->
+        <div class="slide">
+            <h2>Future Works: 향후 연구 방향</h2>
+            <div class="content-row">
+                <div class="text-col">
+                    <p>정확도를 80~90% 이상으로 끌어올리기 위한 <strong>4가지 고도화 전략</strong>을 제안합니다.</p>
+                    <ul style="margin-top: 20px; font-size: 1.1rem; line-height: 1.8;">
+                        <li><strong>1. Vision Transformer (ViT) 도입:</strong> 국소적 픽셀에 집착하는 CNN의 한계를 넘어, 글로벌 문맥에 Self-Attention하여 쓸데없는 배경을 무시하고 잎사귀 병변에만 집중.</li>
+                        <li><strong>2. 적대적 도메인 적응 (DANN):</strong> 모델 내부에 기울기 반전 계층(Gradient Reversal Layer)을 추가하여, 실험실과 야외 도메인 간의 차이를 모델이 구별하지 못하게 강제함.</li>
+                        <li><strong>3. 객체 탐지(YOLO) 파이프라인 결합:</strong> 무식한 배경 제거 대신, 전체 사진에서 '식물의 잎사귀'만 Bounding Box로 잘라낸 뒤 분류를 수행하여 노이즈를 획기적으로 차단.</li>
+                        <li><strong>4. 자기 지도 학습 (Self-Supervised Learning):</strong> 정답이 없는 수백만 장의 야외 식물 사진으로 Pre-training을 진행하여 도메인 지식을 선행 학습.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress and Controls -->
+        <div class="progress-bar" id="progress"></div>
+        <div class="controls">
+            <button id="prevBtn" onclick="changeSlide(-1)" disabled>이전</button>
+            <button id="nextBtn" onclick="changeSlide(1)">다음</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progress = document.getElementById('progress');
+
+        function updateUI() {
+            slides.forEach((slide, index) => {
+                if(index === currentSlide) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+            
+            progress.style.width = ((currentSlide + 1) / slides.length) * 100 + '%';
+        }
+
+        function changeSlide(direction) {
+            currentSlide += direction;
+            if (currentSlide < 0) currentSlide = 0;
+            if (currentSlide >= slides.length) currentSlide = slides.length - 1;
+            updateUI();
+        }
+
+        // Initialize
+        updateUI();
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight' || e.key === ' ') {
+                if(currentSlide < slides.length - 1) changeSlide(1);
+            } else if(e.key === 'ArrowLeft') {
+                if(currentSlide > 0) changeSlide(-1);
+            }
+        });
+    </script>
+</body>
+</html>
