@@ -434,7 +434,40 @@
         .file-tree .file { color: var(--text-secondary); }
         .file-tree .desc { color: var(--text-muted); font-family: 'Noto Sans KR', sans-serif; font-size: 12.5px; }
     </style>
+
+<style>
+/* 인쇄용 및 스크롤 뷰 전용 스타일 */
+body { overflow: auto !important; height: auto !important; background: #e2e8f0; }
+.slide-container { display: flex !important; flex-direction: column; height: auto !important; gap: 40px; padding: 40px 0; background: #e2e8f0; }
+.slide {
+    display: flex !important; 
+    flex-direction: column !important;
+    position: relative !important;
+    page-break-after: always;
+    break-after: page;
+    transform: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+    margin: 0 auto !important;
+}
+.nav-bar, .progress-bar { display: none !important; }
+@media print {
+    @page { size: landscape; margin: 0; }
+    body { background: white; }
+    .slide-container { padding: 0; gap: 0; background: white; }
+    .slide { 
+        width: 100vw !important; 
+        height: 100vh !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+</style>
 </head>
+
 <body>
 
 <div class="progress-bar" id="progressBar"></div>
