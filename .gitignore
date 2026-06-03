@@ -1,8 +1,14 @@
 # Datasets (대용량 데이터 제외)
 New Plant Diseases Dataset(Augmented)/
+plantdoc/
+plantdoc_rembg/
+test/
 
 # Models (대용량 모델 가중치 제외)
 *.pth
+
+# Presentation (발표 자료 - 대용량)
+*.pptx
 
 # Python 컴파일 파일 및 캐시
 __pycache__/
