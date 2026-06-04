@@ -87,8 +87,7 @@ Deep_Learning_Analysis/
 │   └── assets/                           # 학습 곡선(V2~V4) 및 PPT용 에셋
 │
 ├── 🎤 발표 자료
-│   ├── team_presentation.html            # 💡 [웹 발표용] 전체 연구 서사 PPT
-│   └── print_team_presentation.html      # 🖨️ [인쇄용] PDF 저장용 세로 스크롤 버전
+│   └── team_presentation.html            # 💡 [웹 발표용] 전체 연구 서사 PPT
 │
 └── 🧰 기타
     ├── dataset_dataloader_test.ipynb      # 데이터셋 로딩 테스트 및 시각화
