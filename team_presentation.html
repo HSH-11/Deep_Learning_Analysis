@@ -668,8 +668,8 @@
 
     <!-- ════════════════ 슬라이드 7: 아키텍처 최적화 ════════════════ -->
     <div class="slide" id="slide-7">
-        <div class="slide-title">🧠 3-2. 아키텍처 최적화: CNN에서 EfficientNet까지</div>
-        <div class="slide-subtitle">파라미터 폭발 문제 발견 → 자체 경량화 → SOTA 모델 도입</div>
+        <div class="slide-title">🧠 3-2. 아키텍처 최적화: 5가지 모델 비교 분석</div>
+        <div class="slide-subtitle">자체 CNN → GAP 경량화 → 전이학습 모델(ResNet50, MobileNetV3, EfficientNet-B0) 비교</div>
         <div class="slide-body">
             <div class="timeline">
                 <div class="timeline-item">
@@ -687,10 +687,9 @@
                     </div>
                 </div>
                 <div class="timeline-item">
-                    <div class="timeline-title">Step 3. 최적의 실무 솔루션 (EfficientNet-B0 도입)</div>
+                    <div class="timeline-title">Step 3. 다양한 전이학습 모델 비교 실험</div>
                     <div class="timeline-desc">
-                        최초 설계부터 GAP와 <strong>Compound Scaling</strong>이 적용된 SOTA 모델 채택.<br>
-                        파라미터 <strong>405만 개</strong>로 가벼움을 유지하면서, 검증 정확도 <strong>99.73%</strong>라는 압도적 성능 달성.
+                        자체 경량화 연구를 바탕으로 <strong>ResNet50</strong>(Residual Connection), <strong>MobileNetV3</strong>(Depthwise Conv), <strong>EfficientNet-B0</strong>(Compound Scaling) 3가지 SOTA 모델을 도입하여 성능과 효율을 비교 분석.
                     </div>
                 </div>
             </div>
@@ -698,8 +697,10 @@
             <table class="result-table">
                 <tr><th>모델</th><th>분류기 구조</th><th>파라미터 수</th><th>평가</th></tr>
                 <tr><td><strong>Baseline CNN</strong></td><td>Flatten → Dense</td><td>26,099,494</td><td><span class="badge badge-danger">가장 무거움</span></td></tr>
-                <tr><td><strong>Baseline CNN (GAP)</strong></td><td>GAP → Dense</td><td>540,454</td><td><span class="badge badge-accent">극강 초경량</span></td></tr>
+                <tr><td><strong>ResNet50</strong></td><td>GAP + Residual Connection</td><td>23,585,894</td><td><span class="badge badge-danger">깊은 층, 안정적 학습</span></td></tr>
+                <tr><td><strong>MobileNetV3</strong></td><td>GAP + Depthwise Conv</td><td>4,250,710</td><td><span class="badge badge-accent">모바일 배포 최적화</span></td></tr>
                 <tr><td><strong>EfficientNet-B0</strong></td><td>GAP + Compound Scaling</td><td>4,056,226</td><td><span class="badge badge-primary">최적 효율 + 99.73%</span></td></tr>
+                <tr><td><strong>Baseline CNN (GAP)</strong></td><td>GAP → Dense</td><td>540,454</td><td><span class="badge badge-accent">극강 초경량 (98%↓)</span></td></tr>
             </table>
         </div>
     </div>
