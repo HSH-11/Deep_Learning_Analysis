@@ -15,9 +15,10 @@
 *   **Baseline CNN (GAP)**: 파라미터 폭발의 원인인 `Flatten` 대신 최신 논문 기법인 **GAP(Global Average Pooling)**를 분류기 직전에 직접 설계하여 도입.
 *   **최적화 성과**: 기존 대비 파라미터를 2,610만 개 ➡️ **54만 개(약 0.5M)로 98% 대폭락** 시키며, 초경량 자체 모델 구축에 성공.
 
-### Step 3. 실험실 모델 구축 완료 (EfficientNet-B0 도입)
-*   **SOTA 모델 검증**: 자체 경량화 모델 연구를 바탕으로, 초기 설계부터 GAP와 Compound Scaling이 적용된 최적화 모델인 EfficientNet-B0 도입.
-*   **1차 성과**: 파라미터 400만 개 수준으로 가벼움을 유지하며 **실험실 데이터(PlantVillage) 검증 정확도 99.73%** 라는 압도적 성능 달성.
+### Step 3. 다양한 모델 아키텍처 비교 실험
+*   **EfficientNet-B0**: 초기 설계부터 GAP와 Compound Scaling이 적용된 최적화 모델 도입. **실험실 데이터 검증 정확도 99.73%** 달성.
+*   **ResNet50**: Residual Connection 기반의 50층 심층 네트워크. Skip Connection을 통한 안정적 학습.
+*   **MobileNetV3**: Depthwise Separable Convolution 기반의 경량 모델. 모바일/엣지 배포에 최적화.
 
 ### Step 4. 도메인 시프트(Domain Shift) 발생 및 XAI 원인 분석
 *   **문제 발생**: 99.73%의 모델을 배경이 복잡한 **실제 야외 데이터(PlantDoc)에 테스트한 결과, 정확도가 19.12%로 폭락**.
@@ -36,13 +37,13 @@
 
 ## 🏗️ 모델 아키텍처 및 파라미터 비교
 
-| 모델명 | 분류기 구조 특징 | 파라미터 수 (개) | 평가 |
-| :--- | :--- | :--- | :--- |
-| **Baseline CNN (기존)** | `Flatten` -> Dense | 26,099,494 | 모델의 깊이에 비해 연산량이 가장 무거움 |
-| ResNet50 (진행 예정) | GAP 적용 + Residual | 23,585,894 | 깊은 층으로 인해 무거운 편 |
-| MobileNetV3 (진행 예정) | GAP + Depthwise Conv | 4,250,710 | 가볍고 효율적임 |
-| **EfficientNet-B0 (완료)** | **GAP + Compound Scaling** | **4,056,226** | 가벼운 파라미터 + **압도적 성능(99.73%)** |
-| **Baseline CNN (GAP 적용)** | **`GAP` -> Dense** | **540,454** | 파라미터 구조 개선으로 인한 **극강의 초경량화** |
+| 모델명 | 분류기 구조 특징 | 파라미터 수 (개) | 실험실 성능 | 평가 |
+| :--- | :--- | :--- | :--- | :--- |
+| **Baseline CNN (기존)** | `Flatten` -> Dense | 26,099,494 | ✅ 학습 완료 | 모델의 깊이에 비해 연산량이 가장 무거움 |
+| **ResNet50** | GAP 적용 + Residual | 23,585,894 | ✅ 학습 완료 | Skip Connection으로 깊은 학습이 안정적 |
+| **MobileNetV3** | GAP + Depthwise Conv | 4,250,710 | ✅ 학습 완료 | 가볍고 모바일 배포에 최적화 |
+| **EfficientNet-B0** | **GAP + Compound Scaling** | **4,056,226** | ✅ **99.73%** | 가벼운 파라미터 + **압도적 성능** |
+| **Baseline CNN (GAP 적용)** | **`GAP` -> Dense** | **540,454** | ✅ 학습 완료 | 파라미터 구조 개선으로 인한 **극강의 초경량화** |
 
 ---
 
@@ -54,38 +55,98 @@
 
 ---
 
-## 🚀 주요 파일 및 디렉토리 구조
+## 🚀 디렉토리 구조
 
 ```
 Deep_Learning_Analysis/
 │
-├── 🧠 핵심 모듈
-│   ├── model.py                          # 5가지 아키텍처 클래스 정의
-│   ├── dataset.py                        # Albumentations 파이프라인 및 DataLoader 구축
+├── 🧠 핵심 모듈 (Core Modules)
+│   ├── model.py                          # 5가지 모델 아키텍처 클래스 정의
+│   ├── dataset.py                        # Albumentations 전처리 파이프라인 및 DataLoader 구축
 │   ├── train.py                          # 기본 터미널 학습 스크립트
-│   └── evaluate_plantdoc.py              # 야외 데이터(PlantDoc) 검증 및 성능 측정
+│   └── evaluate_plantdoc.py              # 야외 데이터(PlantDoc) 성능 평가
 │
-├── 📓 학습 노트북 (Baseline)
-│   ├── run_training_Baseline.ipynb       # 기존 Baseline 모델 학습 (26M 파라미터)
-│   ├── run_training_Baseline_GAP.ipynb   # 최적화된 초경량 GAP 모델 (540K 파라미터)
-│   └── run_training_EfficientNetB0.ipynb # EfficientNet-B0 모델 (실험실 99.73%)
+├── 📓 모델별 학습 노트북 (Training Notebooks)
+│   ├── run_training_Baseline.ipynb       # Baseline CNN 학습 (26M 파라미터)
+│   ├── run_training_Baseline_GAP.ipynb   # 초경량 GAP 모델 학습 (540K 파라미터)
+│   ├── run_training_EfficientNetB0.ipynb # EfficientNet-B0 학습 (99.73%)
+│   ├── run_training_ResNet50.ipynb       # ResNet50 학습
+│   └── run_training_MobileNetV3.ipynb    # MobileNetV3 학습
 │
 ├── 🧪 도메인 시프트 극복 실험 (Fine-tuning)
-│   ├── finetune_plantdoc.py / .ipynb     # [V1] 단순 전이학습 시도
-│   ├── finetune_plantdoc_v2.py / .ipynb  # [V2] 가설 3 성공: 강한 증강 + 수학적 최적화 (60.56%)
-│   ├── finetune_plantdoc_v3.py / .ipynb  # [V3] 가설 1 실패: rembg 배경 물리적 제거
-│   ├── finetune_plantdoc_v4.py / .ipynb  # [V4] 가설 2 실패: 실험실+야외 혼합 데이터 학습
+│   ├── finetune_plantdoc.py / v1.ipynb   # [V1] 단순 전이학습 시도
+│   ├── finetune_plantdoc_v2.py / .ipynb  # [V2] 가설 3 ✅ 강한 증강 + 수학적 최적화 (60.56%)
+│   ├── finetune_plantdoc_v3.py / .ipynb  # [V3] 가설 1 ❌ rembg 배경 물리적 제거
+│   ├── finetune_plantdoc_v4.py / .ipynb  # [V4] 가설 2 ❌ 실험실+야외 혼합 데이터 학습
 │   ├── preprocess_rembg_all.py           # V3 실험용 배경 제거 전처리 스크립트
 │   └── generate_gradcam.py               # Grad-CAM XAI 시각화 분석 스크립트
 │
 ├── 📊 결과 및 시각화 에셋
 │   ├── gradcam_results/                  # Grad-CAM 시각화 오답 분석 결과 이미지
+│   ├── training_results*.png             # 모델별 학습 곡선 그래프
 │   └── assets/                           # 학습 곡선(V2~V4) 및 PPT용 에셋
 │
-└── 🎤 발표 자료
-    ├── team_presentation.html            # 💡 [웹 발표용] 화려한 디자인의 전체 연구 서사 PPT
-    ├── print_team_presentation.html      # 🖨️ [인쇄용] PDF 저장을 위한 세로 스크롤 버전
-    └── Final_Presentation_Updated.pptx   # 📝 [편집용] 기존 PPTX 템플릿에 신규 서사 삽입본
+├── 🎤 발표 자료
+│   ├── team_presentation.html            # 💡 [웹 발표용] 전체 연구 서사 PPT
+│   └── print_team_presentation.html      # 🖨️ [인쇄용] PDF 저장용 세로 스크롤 버전
+│
+└── 🧰 기타
+    ├── dataset_dataloader_test.ipynb      # 데이터셋 로딩 테스트 및 시각화
+    └── .gitignore                         # 대용량 파일 제외 규칙
 ```
 
-*(참고: 용량이 큰 데이터셋 `.gitignore` 규칙에 의해 저장소에 업로드되지 않습니다. 가중치 `.pth` 파일도 제외됩니다.)*
+---
+
+## 📝 파일 상세 설명
+
+### 🧠 핵심 모듈
+
+| 파일 | 설명 |
+|---|---|
+| **`model.py`** | 5가지 모델 아키텍처(`PlantDiseaseCNN`, `PlantDiseaseCNN_GAP`, `PlantDiseaseResNet50`, `PlantDiseaseEfficientNetB0`, `PlantDiseaseMobileNetV3`)를 `nn.Module` 클래스로 정의. 모든 학습 코드에서 이 파일을 import하여 사용. |
+| **`dataset.py`** | Albumentations 라이브러리를 활용한 이미지 전처리(Resize 224×224, Normalize, 증강) 파이프라인 및 PyTorch `DataLoader`를 구축하는 함수(`get_dataloaders`) 제공. Train/Validation 폴더를 자동 분리하여 로드. |
+| **`train.py`** | 터미널에서 직접 실행할 수 있는 학습 스크립트. 에포크별 Train Loss, Val Loss, Val Accuracy를 출력하고 Best 모델을 자동 저장하는 범용 학습 루틴. |
+| **`evaluate_plantdoc.py`** | 학습된 모델(`.pth`)을 불러와 야외 데이터(PlantDoc)에서의 Top-1 정확도를 측정하는 평가 스크립트. 도메인 시프트 정도를 수치적으로 확인하는 데 사용. |
+
+### 📓 학습 노트북
+
+| 파일 | 설명 |
+|---|---|
+| **`run_training_Baseline.ipynb`** | 4-Block Conv + Flatten + Dense로 구성된 기존 Baseline CNN 학습. 파라미터 26M개의 무거운 구조. 학습 그래프(Loss/Accuracy) 포함. |
+| **`run_training_Baseline_GAP.ipynb`** | Flatten을 GAP(Global Average Pooling)로 대체한 경량화 모델 학습. 파라미터를 540K개로 **98% 감소** 달성. |
+| **`run_training_EfficientNetB0.ipynb`** | Compound Scaling 기반 EfficientNet-B0 전이학습. 4M 파라미터로 **실험실 Val Acc 99.73%** 달성. |
+| **`run_training_ResNet50.ipynb`** | 50층 Residual Network 전이학습. Skip Connection을 통한 안정적인 깊은 학습 수행. |
+| **`run_training_MobileNetV3.ipynb`** | Depthwise Separable Convolution 기반 경량 모델 전이학습. 모바일/엣지 디바이스 배포 시나리오 검증. |
+
+### 🧪 도메인 시프트 극복 실험
+
+| 파일 | 설명 |
+|---|---|
+| **`finetune_plantdoc.py` / `v1.ipynb`** | 실험실에서 학습된 EfficientNet-B0을 야외 데이터로 단순 파인튜닝하는 기본 실험. |
+| **`finetune_plantdoc_v2.py` / `.ipynb`** | **🏆 최종 성공 실험.** 강한 이미지 증강(ColorJitter, RandomRotation) + Cosine Annealing LR Scheduler + Label Smoothing을 적용하여 **야외 정확도 60.56%** 달성 (3배 이상 향상). |
+| **`finetune_plantdoc_v3.py` / `.ipynb`** | rembg 라이브러리로 배경을 물리적으로 제거한 데이터로 학습. 잎 경계 훼손으로 인해 47.81%에 그침 (실패). |
+| **`finetune_plantdoc_v4.py` / `.ipynb`** | 실험실 데이터(PlantVillage)와 야외 데이터(PlantDoc)를 혼합하여 학습. 쉬운 데이터의 간섭으로 47.01% (실패). |
+| **`preprocess_rembg_all.py`** | V3 실험을 위해 PlantDoc 데이터셋 전체 이미지의 배경을 rembg로 자동 제거하는 배치 전처리 스크립트. |
+| **`generate_gradcam.py`** | 학습된 모델의 마지막 Conv 층에서 Grad-CAM 히트맵을 추출하여, 모델이 이미지의 어느 부분을 보고 판단했는지를 시각화. 오답 원인 분석에 사용. |
+
+### 📊 결과물
+
+| 파일/폴더 | 설명 |
+|---|---|
+| **`training_results*.png`** | 각 모델의 학습 과정(Train/Val Loss, Val Accuracy)을 시각화한 그래프 이미지. |
+| **`gradcam_results/`** | Grad-CAM 분석 결과 이미지 5장. 모델이 잎의 병변 대신 배경에 집중하는 도메인 시프트 현상을 시각적으로 증명. |
+| **`assets/`** | 파인튜닝 실험(V2~V4)의 학습 곡선 그래프 및 발표용 에셋. |
+
+---
+
+## ⚙️ 실행 환경
+
+*   **Python**: 3.10+
+*   **Framework**: PyTorch
+*   **전처리**: Albumentations
+*   **시각화**: Matplotlib, Grad-CAM
+*   **OS**: Windows (DataLoader `num_workers=0` 설정)
+
+---
+
+*(참고: 용량이 큰 데이터셋은 `.gitignore` 규칙에 의해 저장소에 업로드되지 않습니다. 가중치 `.pth` 파일도 제외됩니다.)*

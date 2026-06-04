@@ -4,8 +4,10 @@ from rembg import remove
 from PIL import Image
 from tqdm import tqdm
 
-base_input_dir = r"c:\Users\dltjr\Desktop\project\plantdoc"
-base_output_dir = r"c:\Users\dltjr\Desktop\project\plantdoc_rembg"
+
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+base_input_dir = os.path.join(PROJECT_DIR, "plantdoc")
+base_output_dir = os.path.join(PROJECT_DIR, "plantdoc_rembg")
 
 # Find all images in train and test
 all_images = []

@@ -8,6 +8,8 @@ from tqdm import tqdm
 
 from model import PlantDiseaseEfficientNetB0
 
+
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Device: {device}")
 
@@ -71,7 +73,7 @@ test_transform = transforms.Compose([
 ])
 
 # Use plantdoc test folder
-test_dir = r"c:\Users\dltjr\Desktop\project\plantdoc\test"
+test_dir = os.path.join(PROJECT_DIR, "plantdoc", "test")
 test_dataset = PlantDocMappedDataset(test_dir, transform=test_transform)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, num_workers=0)
 

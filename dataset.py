@@ -130,7 +130,7 @@ def get_dataloaders(base_dir, batch_size=32, num_workers=0):
 # 로컬 환경 데이터셋 연결 및 형태 검증 테스트 코드
 if __name__ == "__main__":
     # 프로젝트 내 실제 데이터셋 기본 경로 설정
-    dataset_base_dir = r"c:\Users\dltjr\Desktop\project\New Plant Diseases Dataset(Augmented)\New Plant Diseases Dataset(Augmented)"
+    dataset_base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "New Plant Diseases Dataset(Augmented)", "New Plant Diseases Dataset(Augmented)")
     
     if os.path.exists(dataset_base_dir):
         print("--- 데이터 파이프라인 검증 테스트 ---")

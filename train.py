@@ -5,6 +5,8 @@ import torch.optim as optim
 from model import PlantDiseaseCNN
 from dataset import get_dataloaders
 
+
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 def train_model(model, train_loader, val_loader, criterion, optimizer, device, num_epochs=10):
     """
     정의된 학습 및 검증 루프를 통해 에포크별로 학습을 수행하고 결과를 출력하는 함수.
@@ -85,7 +87,7 @@ def main():
         print(f"Graphics Card: {torch.cuda.get_device_name(0)}")
         
     # 데이터셋 절대경로 매핑
-    base_dir = r"c:\Users\dltjr\Desktop\project\New Plant Diseases Dataset(Augmented)\New Plant Diseases Dataset(Augmented)"
+    base_dir = os.path.join(PROJECT_DIR, "New Plant Diseases Dataset(Augmented)", "New Plant Diseases Dataset(Augmented)")
     
     if not os.path.exists(base_dir):
         raise FileNotFoundError(f"Dataset directory not found at: {base_dir}")

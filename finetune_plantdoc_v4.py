@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 
 from model import PlantDiseaseEfficientNetB0
 
+
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Device: {device}")
 
@@ -144,9 +146,9 @@ tta_transforms = [
 # =============================================
 # Load Datasets
 # =============================================
-lab_train_dir = r"c:\Users\dltjr\Desktop\project\New Plant Diseases Dataset(Augmented)\New Plant Diseases Dataset(Augmented)\train"
-outdoor_train_dir = r"c:\Users\dltjr\Desktop\project\plantdoc\train"
-outdoor_test_dir = r"c:\Users\dltjr\Desktop\project\plantdoc\test"
+lab_train_dir = os.path.join(PROJECT_DIR, "New Plant Diseases Dataset(Augmented)", "New Plant Diseases Dataset(Augmented)", "train")
+outdoor_train_dir = os.path.join(PROJECT_DIR, "plantdoc", "train")
+outdoor_test_dir = os.path.join(PROJECT_DIR, "plantdoc", "test")
 
 # Load outdoor (plantdoc) dataset
 outdoor_train_dataset = PlantDocMappedDataset(outdoor_train_dir, transform=train_transform)

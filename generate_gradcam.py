@@ -11,6 +11,8 @@ from pytorch_grad_cam import GradCAM
 from pytorch_grad_cam.utils.image import show_cam_on_image
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 
+
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Device: {device}")
 
@@ -46,7 +48,7 @@ model.to(device)
 model.eval()
 
 # Load all images
-test_dir = r"c:\Users\dltjr\Desktop\project\plantdoc\test"
+test_dir = os.path.join(PROJECT_DIR, "plantdoc", "test")
 image_paths = []
 labels = []
 for folder_name in os.listdir(test_dir):
