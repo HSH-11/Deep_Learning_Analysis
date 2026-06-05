@@ -22,7 +22,7 @@ class PlantDiseaseDataset(Dataset):
         self.class_to_idx = {cls_name: i for i, cls_name in enumerate(self.classes)}
         
         # 지원할 이미지 확장자 리스트
-        valid_extensions = ('*.jpg', '*.jpeg', '*.png', '*.JPG', '*.JPEG', '*.PNG')
+        valid_extensions = ('*.jpg', '*.jpeg', '*.png')
         
         # 모든 클래스 폴더 내의 이미지 파일 경로 및 해당 라벨 매칭 수집
         for cls_name in self.classes:
