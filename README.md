@@ -33,6 +33,12 @@
 *   **🏆 가설 3 (본질적 도메인 적응 / V2)**: **원본 야외 데이터만 투입하되 가혹한 증강(ColorJitter 등)과 수학적 최적화(Cosine Annealing, Label Smoothing)로 정면 승부한다.**
     *   **결과**: **60.56% (성공)**. 꼼수(배경 제거, 혼합)를 배제하고 모델 스스로 가혹한 환경을 이겨내도록 유도한 정공법이 3배 이상의 성능 향상을 이끌어 냄.
 
+### Step 6. Vision Transformer(ViT) 아키텍처 비교
+*   **동일 프로토콜 비교**: PlantDoc train/test, 동일 증강·Label Smoothing·Cosine Annealing·2단계 학습(헤드 5ep → 전체 25ep) 조건에서 EfficientNet-B0와 ViT-Small을 공정 비교.
+*   **성능**: EfficientNet-B0 **65.34%** (164/251) vs ViT-Small **70.92%** (178/251), **+5.58%p** 우위.
+*   **이미지별 비교**: 251장 중 둘 다 정답 149 · ViT만 정답 29 · EfficientNet만 정답 15.
+*   **ViT Attention 시각화**: CLS 토큰 attention map으로 파인튜닝 후 병변 집중이 Grad-CAM 대비 개선됨을 확인. 일부 오답에서는 배경 shortcut·유사 병해 혼동 잔존.
+
 ---
 
 ## 🏗️ 모델 아키텍처 및 파라미터 비교
@@ -43,6 +49,7 @@
 | **ResNet50** | GAP 적용 + Residual | 23,585,894 | ✅ 학습 완료 | Skip Connection으로 깊은 학습이 안정적 |
 | **MobileNetV3** | GAP + Depthwise Conv | 4,250,710 | ✅ 학습 완료 | 가볍고 모바일 배포에 최적화 |
 | **EfficientNet-B0** | **GAP + Compound Scaling** | **4,056,226** | ✅ **99.73%** | 가벼운 파라미터 + **압도적 성능** |
+| **ViT-Small** | Self-Attention + Patch Embedding | 21,676,642 | ✅ **70.92%** (PlantDoc) | 야외 도메인 적응 **현재 최고** |
 | **Baseline CNN (GAP 적용)** | **`GAP` -> Dense** | **540,454** | ✅ 학습 완료 | 파라미터 구조 개선으로 인한 **극강의 초경량화** |
 
 ---
@@ -61,7 +68,7 @@
 Deep_Learning_Analysis/
 │
 ├── 🧠 핵심 모듈 (Core Modules)
-│   ├── model.py                          # 5가지 모델 아키텍처 클래스 정의
+│   ├── model.py                          # 6가지 모델 아키텍처 클래스 정의 (ViT-Small 포함)
 │   ├── dataset.py                        # Albumentations 전처리 파이프라인 및 DataLoader 구축
 │   ├── train.py                          # 기본 터미널 학습 스크립트
 │   └── evaluate_plantdoc.py              # 야외 데이터(PlantDoc) 성능 평가
@@ -78,11 +85,16 @@ Deep_Learning_Analysis/
 │   ├── finetune_plantdoc_v2.py / .ipynb  # [V2] 가설 3 ✅ 강한 증강 + 수학적 최적화 (60.56%)
 │   ├── finetune_plantdoc_v3.py / .ipynb  # [V3] 가설 1 ❌ rembg 배경 물리적 제거
 │   ├── finetune_plantdoc_v4.py / .ipynb  # [V4] 가설 2 ❌ 실험실+야외 혼합 데이터 학습
+│   ├── finetune_plantdoc_vit.py          # ViT-Small PlantDoc 파인튜닝 (70.92%)
+│   ├── finetune_plantdoc_efficientnet_match_vit.py  # ViT와 동일 프로토콜 EfficientNet 재학습 (65.34%)
+│   ├── evaluate_plantdoc_vit.py        # ViT-Small PlantDoc test 평가
+│   ├── generate_vit_attention.py       # ViT CLS attention 시각화
 │   ├── preprocess_rembg_all.py           # V3 실험용 배경 제거 전처리 스크립트
 │   └── generate_gradcam.py               # Grad-CAM XAI 시각화 분석 스크립트
 │
 ├── 📊 결과 및 시각화 에셋
 │   ├── gradcam_results/                  # Grad-CAM 시각화 오답 분석 결과 이미지
+│   ├── vit_attention_results/            # ViT Attention 시각화 (정답 5 + 오답 5)
 │   ├── training_results*.png             # 모델별 학습 곡선 그래프
 │   └── assets/                           # 학습 곡선(V2~V4) 및 PPT용 에셋
 │
@@ -102,7 +114,7 @@ Deep_Learning_Analysis/
 
 | 파일 | 설명 |
 |---|---|
-| **`model.py`** | 5가지 모델 아키텍처(`PlantDiseaseCNN`, `PlantDiseaseCNN_GAP`, `PlantDiseaseResNet50`, `PlantDiseaseEfficientNetB0`, `PlantDiseaseMobileNetV3`)를 `nn.Module` 클래스로 정의. 모든 학습 코드에서 이 파일을 import하여 사용. |
+| **`model.py`** | 6가지 모델 아키텍처(`PlantDiseaseCNN`, `PlantDiseaseCNN_GAP`, `PlantDiseaseResNet50`, `PlantDiseaseEfficientNetB0`, `PlantDiseaseViTSmall`, `PlantDiseaseMobileNetV3`)를 `nn.Module` 클래스로 정의. ViT-Small은 `timm` 기반 `vit_small_patch16_224` 사용. |
 | **`dataset.py`** | Albumentations 라이브러리를 활용한 이미지 전처리(Resize 224×224, Normalize, 증강) 파이프라인 및 PyTorch `DataLoader`를 구축하는 함수(`get_dataloaders`) 제공. Train/Validation 폴더를 자동 분리하여 로드. |
 | **`train.py`** | 터미널에서 직접 실행할 수 있는 학습 스크립트. 에포크별 Train Loss, Val Loss, Val Accuracy를 출력하고 Best 모델을 자동 저장하는 범용 학습 루틴. |
 | **`evaluate_plantdoc.py`** | 학습된 모델(`.pth`)을 불러와 야외 데이터(PlantDoc)에서의 Top-1 정확도를 측정하는 평가 스크립트. 도메인 시프트 정도를 수치적으로 확인하는 데 사용. |
@@ -127,6 +139,10 @@ Deep_Learning_Analysis/
 | **`finetune_plantdoc_v4.py` / `.ipynb`** | 실험실 데이터(PlantVillage)와 야외 데이터(PlantDoc)를 혼합하여 학습. 쉬운 데이터의 간섭으로 47.01% (실패). |
 | **`preprocess_rembg_all.py`** | V3 실험을 위해 PlantDoc 데이터셋 전체 이미지의 배경을 rembg로 자동 제거하는 배치 전처리 스크립트. |
 | **`generate_gradcam.py`** | 학습된 모델의 마지막 Conv 층에서 Grad-CAM 히트맵을 추출하여, 모델이 이미지의 어느 부분을 보고 판단했는지를 시각화. 오답 원인 분석에 사용. |
+| **`finetune_plantdoc_vit.py`** | ViT-Small PlantDoc 도메인 적응. 2단계 파인튜닝(헤드 freeze → 전체 unfreeze) + Label Smoothing + Cosine Annealing. **PlantDoc test 70.92%**. |
+| **`finetune_plantdoc_efficientnet_match_vit.py`** | ViT 실험과 동일 프로토콜로 EfficientNet-B0 재학습. 공정 비교 기준선 **65.34%**. |
+| **`evaluate_plantdoc_vit.py`** | `finetuned_model_vit_small_v2.pth` 체크포인트로 PlantDoc test 정확도 평가. |
+| **`generate_vit_attention.py`** | 마지막 ViT 블록 CLS→패치 attention map 추출. `vit_attention_results/`에 정답·오답 샘플 저장. |
 
 ### 📊 결과물
 
@@ -134,6 +150,7 @@ Deep_Learning_Analysis/
 |---|---|
 | **`training_results*.png`** | 각 모델의 학습 과정(Train/Val Loss, Val Accuracy)을 시각화한 그래프 이미지. |
 | **`gradcam_results/`** | Grad-CAM 분석 결과 이미지 5장. 모델이 잎의 병변 대신 배경에 집중하는 도메인 시프트 현상을 시각적으로 증명. |
+| **`vit_attention_results/`** | ViT Attention 시각화 10장(정답 5, 오답 5). 파인튜닝 후 병변 집중·배경 shortcut 패턴 분석. |
 | **`assets/`** | 파인튜닝 실험(V2~V4)의 학습 곡선 그래프 및 발표용 에셋. |
 
 ---
