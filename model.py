@@ -142,7 +142,34 @@ class PlantDiseaseEfficientNetB0(nn.Module):
         return self.model(x)
 
 # ==========================================
-# 추가 모델 3: MobileNetV3-Large (Transfer Learning)
+# 추가 모델 3: ViT-Small (Transfer Learning, timm)
+# ==========================================
+class PlantDiseaseViTSmall(nn.Module):
+    def __init__(self, num_classes=38, pretrained=True):
+        super(PlantDiseaseViTSmall, self).__init__()
+        import timm
+
+        self.model = timm.create_model(
+            "vit_small_patch16_224",
+            pretrained=pretrained,
+            num_classes=num_classes,
+        )
+
+    def forward(self, x):
+        return self.model(x)
+
+    def freeze_backbone(self):
+        for name, param in self.model.named_parameters():
+            if not name.startswith("head"):
+                param.requires_grad = False
+
+    def unfreeze_all(self):
+        for param in self.model.parameters():
+            param.requires_grad = True
+
+
+# ==========================================
+# 추가 모델 4: MobileNetV3-Large (Transfer Learning)
 # ==========================================
 class PlantDiseaseMobileNetV3(nn.Module):
     def __init__(self, num_classes=38):
@@ -166,6 +193,7 @@ if __name__ == "__main__":
         "Baseline CNN (GAP)": PlantDiseaseCNN_GAP(num_classes=38),
         "ResNet50": PlantDiseaseResNet50(num_classes=38),
         "EfficientNet-B0": PlantDiseaseEfficientNetB0(num_classes=38),
+        "ViT-Small": PlantDiseaseViTSmall(num_classes=38, pretrained=False),
         "MobileNetV3": PlantDiseaseMobileNetV3(num_classes=38)
     }
     

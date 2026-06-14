@@ -1,0 +1,4 @@
+split,total_images,num_classes,num_crops,healthy_images,disease_images,broken_images (sampled)
+train,70295,38,14,22294,48001,0
+valid,17572,38,14,5572,12000,0
+all,87867,38,14,27866,60001,0

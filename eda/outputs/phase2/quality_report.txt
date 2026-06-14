@@ -1,0 +1,23 @@
+=== Phase 2 Data Quality Report ===
+
+Dataset: C:\Users\user\Deep_Learning_Analysis\New Plant Diseases Dataset(Augmented)\New Plant Diseases Dataset(Augmented)
+Total files scanned: 87,867
+
+[1] Zero-byte files: 0
+[2] Broken images: 0 (0.0000%)
+[3] Non-RGB images: 0
+[4] 224×224 images: 0 / 87,867 (0.00%)
+[5] Class count CV: 0.0572
+[6] Filename overlap (train∩valid): 0
+[7] Content hash leakage pairs: 6
+[8] OpenCV sample load failures: 0
+
+Pass criteria (recommended):
+  - Broken images = 0
+  - All RGB mode
+  - 224×224 unified (or Resize in pipeline)
+  - CV < 0.05 (balanced classes)
+  - Leakage pairs = 0 (or documented & accepted)
+
+Outputs: C:\Users\user\Deep_Learning_Analysis\eda\outputs\phase2
+Figures: C:\Users\user\Deep_Learning_Analysis\eda\figures

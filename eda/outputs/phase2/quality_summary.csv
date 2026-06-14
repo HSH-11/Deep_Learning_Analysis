@@ -1,0 +1,8 @@
+check,count,status
+zero_byte,0,PASS
+broken_images,0,PASS
+non_rgb,0,PASS
+not_224x224,87867,INFO
+filename_overlap,0,PASS
+hash_leakage_pairs,6,WARN
+cv2_load_failures,0,PASS
